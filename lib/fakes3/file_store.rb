@@ -75,6 +75,10 @@ module FakeS3
       begin
         real_obj = S3Object.new
         obj_root = File.join(@root,bucket,object_name,SHUCK_METADATA_DIR)
+        if !File.file?(File.join(obj_root,"metadata"))
+          return nil
+        end
+        obj_root = File.join(@root,bucket,object_name,SHUCK_METADATA_DIR)
         metadata = YAML.load(File.open(File.join(obj_root,"metadata"),'rb'))
         real_obj.name = object_name
         real_obj.md5 = metadata[:md5]
