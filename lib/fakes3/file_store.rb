@@ -165,7 +165,10 @@ module FakeS3
 
         # TODO put a tmpfile here first and mv it over at the end
 
-        match=request.content_type.match(/^multipart\/form-data; boundary=(.+)/)
+        if request.content_type then match = request.content_type.match(/^multipart\/form-data; boundary=(.+)/)
+        else match = []
+        end
+
       	boundary = match[1] if match
         if boundary
           boundary = WEBrick::HTTPUtils::dequote(boundary)
