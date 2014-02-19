@@ -19,6 +19,26 @@ module FakeS3
         bucket_obj = Bucket.new(bucket_name,Time.now,[])
         @buckets << bucket_obj
         @bucket_hash[bucket_name] = bucket_obj
+        fill_objects(bucket_obj, root + "/" + bucket_name + "/")
+      end
+    end
+
+    # Recursive routine to fill bucket with saved objects
+    def fill_objects(bucket_obj, dir)
+      Dir[File.join(dir,"*")].each do |file|
+        obj_root = File.join(file,SHUCK_METADATA_DIR)
+        if File.file?(File.join(obj_root,"metadata"))
+          metadata = YAML.load(File.open(File.join(obj_root,"metadata"),'rb'))
+          obj = S3Object.new
+          obj.name = file[(@root + "/" + bucket_obj.name).length + 1, file.length]
+          obj.md5 = metadata[:md5]
+          obj.content_type = metadata[:content_type]
+          obj.size = metadata[:size]
+          obj.modified_date = metadata[:modified_date]
+          bucket_obj.add(obj)
+        else
+          fill_objects(bucket_obj, file + "/")
+        end
       end
     end
 
