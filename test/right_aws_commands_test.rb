@@ -23,8 +23,6 @@ class RightAWSCommandsTest < Test::Unit::TestCase
     @s3.put("s3media","helloworld","Hello World Man!")
     obj = @s3.get("s3media","helloworld")
     assert_equal "Hello World Man!",obj[:object]
-
-    obj = @s3.get("s3media","helloworld")
   end
 
   def test_store_not_found
@@ -115,6 +113,24 @@ class RightAWSCommandsTest < Test::Unit::TestCase
       fail 'Should have caught NoSuchBucket Exception'
     end
 
+  end
+
+  def test_delete
+    bucket = @s3.create_bucket('s3deletetest')
+    assert_not_nil bucket
+
+    @s3.put('s3deletetest','helloworld','Hello World Man!')
+    obj = @s3.get('s3deletetest','helloworld')
+    assert_equal 'Hello World Man!',obj[:object]
+
+    bucket = @s3.list_bucket('s3deletetest')
+    assert_equal 1, bucket.length
+
+    @s3.delete('s3deletetest', 'helloworld')
+    bucket = @s3.list_bucket('s3deletetest')
+    assert_equal 0, bucket.length
+
+    @s3.delete_bucket('s3deletetest')
   end
 
 end
